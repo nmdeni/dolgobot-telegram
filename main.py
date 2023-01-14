@@ -3,6 +3,7 @@ from config import *
 
 def start_bot(token):
     bot = telebot.TeleBot(token)
+    user_auth = False
     
     @bot.message_handler(commands=['start'])
     def start_message(message):
@@ -11,6 +12,7 @@ def start_bot(token):
     # ВЫХОД ИЗ ПРОГИ, КОНЕЦ    
     @bot.message_handler(commands=['stop'])
     def start_message(message):
+        user_auth = False
         bot.send_message(message.chat.id, f"Всего доброго! {message.from_user.username}!\n")
 
     # ПРОВЕРКА ПАРОЛЯ
@@ -19,10 +21,10 @@ def start_bot(token):
         user_password = message.text
 
         if user_password == 'test':
+            user_auth = True
             bot.send_message(message.chat.id, 'Доступ разрешен!')
         else:
             bot.send_message(message.chat.id, 'Пароль не верный!')
-        # ########################################################################
 
 
     bot.polling()
@@ -30,4 +32,4 @@ def start_bot(token):
 # НАЧАЛО
 if __name__ == '__main__':
     # ЗАПУСК БОТА
-    start_bot(token_bot)
+    start_bot(TOKEN_BOT)
