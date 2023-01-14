@@ -1,4 +1,5 @@
 import telebot
+import psycopg2
 from config import *
 
 def start_bot(token):
