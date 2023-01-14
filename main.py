@@ -1,6 +1,7 @@
 import telebot
 import psycopg2
 from config import *
+from db_connect import db_conncet
 
 def start_bot(token):
     bot = telebot.TeleBot(token)
@@ -23,10 +24,15 @@ def start_bot(token):
 
         if user_password == 'test':
             user_auth = True
-            bot.send_message(message.chat.id, 'Доступ разрешен!')
+
+            try:
+                bot.send_message(message.chat.id, 'Доступ разрешен!')
+                connect = psycopg2.connect(f'host={HOST} user={USER_DB} dbname={NAME_DB} password={user_password}')
+                db_conncet(connect,bot,message)
+            except Exception as ex:
+                bot.send_message(message.chat.id,f"{'-'*20}\n[INFO] Ошибка программы!!!\n{ex}\n{'-'*20}\n")
         else:
             bot.send_message(message.chat.id, 'Пароль не верный!')
-
 
     bot.polling()
 
