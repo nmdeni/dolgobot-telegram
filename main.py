@@ -22,7 +22,10 @@ def start_bot(token):
     def password_check(message):
         user_password = message.text
 
-        if user_password == 'test':
+        global user_auth
+        if user_auth == True:
+            bot.send_message(message.chat.id, 'Вы подключены')
+        elif user_password == 'test' and user_auth != True:
             user_auth = True
 
             try:
@@ -32,7 +35,7 @@ def start_bot(token):
             except Exception as ex:
                 bot.send_message(message.chat.id,f"{'-'*20}\n[INFO] Ошибка программы!!!\n{ex}\n{'-'*20}\n")
         else:
-            bot.send_message(message.chat.id, 'Пароль не верный!')
+            bot.send_message(message.chat.id, 'Неверный пароль')
 
     bot.polling()
 
