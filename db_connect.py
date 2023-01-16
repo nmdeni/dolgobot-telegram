@@ -12,9 +12,9 @@ def db_conncet(connect,bot,message):
 
     @bot.message_handler(content_types=['text'])
     def list_show(message):
-        if message.text == '/list' and user_auth:
+        # if message.text == '/list':
             # ВЫВОД СПИСКА
-            bot.send_message(message.chat.id, 'Вот список')
+        bot.send_message(message.chat.id, 'Вот список')
         # elif user_command == 2:
         #     # ДОБАВЛЕНИЕ/УДАЛЕННИЕ ДАННЫХ
         #     user_command2 = int(input('\n1 - внести\n2 - удалить\n3 - выход\n-> '))
@@ -29,5 +29,5 @@ def db_conncet(connect,bot,message):
         #         print(err_type)
         #         continue
         # elif user_command == 3:
-        else:
-            bot.send_message(message.chat.id, 'Нет такой команды!')
+        # else:
+        #     bot.send_message(message.chat.id, 'Нет такой команды!')
