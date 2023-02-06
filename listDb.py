@@ -1,8 +1,8 @@
-def list_output(db_cursor):
+def list_output(db_cursor,db_table):
     table_db = ""
 
-    db_cursor.execute("""
-        select * from users_dolg;
+    db_cursor.execute(f"""
+        select * from {db_table};
     """)
 
     for k in db_cursor.fetchall():

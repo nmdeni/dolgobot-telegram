@@ -2,9 +2,11 @@ import telebot
 import psycopg2
 from config import *
 from listDb import list_output
+from readDb import readDB
 
 user_auth = False
 cur = {}
+read_menu = False
 
 def start_bot(token):
     bot = telebot.TeleBot(token)
@@ -28,7 +30,7 @@ def start_bot(token):
     # ПРОВЕРКА ПАРОЛЯ
     @bot.message_handler(content_types=['text'])
     def password_check(message):
-        global user_auth, cur
+        global user_auth, cur, read_menu
             
         if message.text == 'test' and user_auth != True:
             user_auth = True
@@ -51,11 +53,17 @@ def start_bot(token):
 
         elif user_auth != True:
             bot.send_message(message.chat.id, 'Неверный пароль')
+
+        if read_menu and message.text == '/del':
+            bot.send_message(message.chat.id, 'Введите ID удаления (пример - 0)')
+            if type(message.text) == type(0):
+                bot.send_message(message.chat.id,readDB(cur, DB_TABLE, '/del', message.text))
         
         if user_auth and message.text == '/list':
-            bot.send_message(message.chat.id, list_output(cur))
+            bot.send_message(message.chat.id, list_output(cur,DB_TABLE))
         elif user_auth and  message.text == '/date':
-            bot.send_message(message.chat.id, 'внести/удалить данные')
+            read_menu = True
+            bot.send_message(message.chat.id, '/del - удалить\n'+'/ins - добавить')
         elif user_auth and message.text == '/exit':
             stop_message(message)
         elif user_auth:
