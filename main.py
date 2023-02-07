@@ -6,7 +6,8 @@ from readDb import readDB
 
 user_auth = False
 cur = {}
-read_menu = False
+read_menu_activ = False
+main_menu_text = '---МЕНЮ---\n'+ '/list - вывести список данных\n'+'/date - внести/удалить данные\n'+'/exit - выход'
 
 def start_bot(token):
     bot = telebot.TeleBot(token)
@@ -30,18 +31,14 @@ def start_bot(token):
     # ПРОВЕРКА ПАРОЛЯ
     @bot.message_handler(content_types=['text'])
     def password_check(message):
-        global user_auth, cur, read_menu
+        global user_auth, cur, read_menu_activ
             
         if message.text == 'test' and user_auth != True:
             user_auth = True
             user_password = message.text
 
             try:
-                bot.send_message(message.chat.id, 'Доступ разрешен!\n' +
-                    '---МЕНЮ---\n' +
-                    '/list - вывести список данных\n' +
-                    '/date - внести/удалить данные\n' +
-                '/exit - выход')
+                bot.send_message(message.chat.id, 'Доступ разрешен!\n' + main_menu_text)
                 connect = psycopg2.connect(f'host={HOST} user={USER_DB} dbname={NAME_DB} password={user_password}')
                 connect.autocommit = True
                 cur = connect.cursor()
@@ -54,20 +51,30 @@ def start_bot(token):
         elif user_auth != True:
             bot.send_message(message.chat.id, 'Неверный пароль')
 
-        if read_menu and message.text == '/del':
-            bot.send_message(message.chat.id, 'Введите ID удаления (пример - 0)')
-            if type(message.text) == type(0):
-                bot.send_message(message.chat.id,readDB(cur, DB_TABLE, '/del', message.text))
-        
-        if user_auth and message.text == '/list':
+        if user_auth and read_menu_activ == False and message.text == '/list':
             bot.send_message(message.chat.id, list_output(cur,DB_TABLE))
-        elif user_auth and  message.text == '/date':
-            read_menu = True
-            bot.send_message(message.chat.id, '/del - удалить\n'+'/ins - добавить')
-        elif user_auth and message.text == '/exit':
+        elif user_auth and read_menu_activ == False and message.text == '/date':
+            read_menu_activ = True
+            return bot.send_message(message.chat.id, '/del - удалить\n'+'/ins - добавить')
+        elif user_auth and read_menu_activ == False and message.text == '/exit':
             stop_message(message)
-        elif user_auth:
+        elif user_auth and read_menu_activ == False:
             bot.send_message(message.chat.id, 'Нет такой комманды!!!')
+
+        if read_menu_activ and message.text == '/del':
+            bot.send_message(message.chat.id, 'Введите ID удаления (пример - 0)')
+        elif read_menu_activ:
+            try:
+                bot.send_message(message.chat.id,readDB(cur, DB_TABLE, '/del', int(message.text)) 
+                    + main_menu_text
+                )
+                read_menu_activ = False 
+            except Exception as ex:
+                bot.send_message(message.chat.id,f"{'-'*20}\n[INFO] Неверное значение!!!\n{ex}\n{'-'*20}\n"
+                    + main_menu_text
+                )
+                read_menu_activ = False 
+        
 
     bot.polling()
 
