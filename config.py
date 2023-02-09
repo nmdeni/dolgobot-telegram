@@ -1,6 +1,6 @@
 TOKEN_BOT = '5870622566:AAE6tKNK7UuqdrlTvoyJ9Oak6AJaHneEqD4'
 HOST='127.0.0.1'
-USER_DB='user_test'
+USER_DB='postgres'
 PASSWORD_DB='test'
 NAME_DB='db_test'
 DB_TABLE='users_dolgs'

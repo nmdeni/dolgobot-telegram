@@ -7,6 +7,13 @@ from readDb import readDB
 user_auth = False
 cur = {}
 read_menu_activ = False
+read_del_activ = False
+read_ins_activ = False
+user_ins = {
+    'name':'',
+    'sum':'',
+    'status':''
+}
 main_menu_text = '---МЕНЮ---\n'+ '/list - вывести список данных\n'+'/date - внести/удалить данные\n'+'/exit - выход'
 
 def start_bot(token):
@@ -28,10 +35,10 @@ def start_bot(token):
         user_auth = False
         bot.send_message(message.chat.id, f"Всего доброго! {message.from_user.username}!\n")
 
-    # ПРОВЕРКА ПАРОЛЯ
+    
     @bot.message_handler(content_types=['text'])
     def password_check(message):
-        global user_auth, cur, read_menu_activ
+        global user_auth, cur, read_menu_activ,read_del_activ,read_ins_activ,user_ins
             
         if message.text == 'test' and user_auth != True:
             user_auth = True
@@ -63,17 +70,62 @@ def start_bot(token):
 
         if read_menu_activ and message.text == '/del':
             bot.send_message(message.chat.id, 'Введите ID удаления (пример - 0)')
-        elif read_menu_activ:
+            read_del_activ = True
+        elif read_menu_activ and read_del_activ:
             try:
                 bot.send_message(message.chat.id,readDB(cur, DB_TABLE, '/del', int(message.text)) 
                     + main_menu_text
                 )
-                read_menu_activ = False 
+                read_menu_activ = False
+                read_del_activ = False
+
             except Exception as ex:
                 bot.send_message(message.chat.id,f"{'-'*20}\n[INFO] Неверное значение!!!\n{ex}\n{'-'*20}\n"
                     + main_menu_text
                 )
                 read_menu_activ = False 
+                read_del_activ = False
+
+        if read_menu_activ and message.text == '/ins':
+            read_ins_activ = True
+            bot.send_message(message.chat.id, 'Введите имя')
+            return
+        if read_ins_activ and user_ins['name'] == '':
+            user_ins['name'] = message.text
+
+        if user_ins['name'] != '' and user_ins['sum'] == '' and read_ins_activ:
+            bot.send_message(message.chat.id, f"Имя - {user_ins['name']}")
+            bot.send_message(message.chat.id, 'Введите сумму')
+            return
+        if read_ins_activ and user_ins['sum'] == '':
+            try:
+                user_ins['sum'] = int(message.text)
+            except Exception as ex:
+                bot.send_message(message.chat.id, 'Вы ввели не число!!!')
+                return
+
+        if user_ins['status'] == '' and read_ins_activ:
+            bot.send_message(message.chat.id, f"Имя - {user_ins['name']}\nСумма - {user_ins['sum']}")
+            bot.send_message(message.chat.id, 'Введите статус \n(true - вы должны, false - вам)')
+            user_ins['status'] = message.text
+            read_ins_activ = True
+            read_menu_activ = False 
+
+
+        elif read_menu_activ and read_del_activ:
+            try:
+                bot.send_message(message.chat.id,readDB(cur, DB_TABLE, '/del', int(message.text)) 
+                    + main_menu_text
+                )
+                read_menu_activ = False
+                read_ins_activ = False
+
+            except Exception as ex:
+                bot.send_message(message.chat.id,f"{'-'*20}\n[INFO] Неверное значение!!!\n{ex}\n{'-'*20}\n"
+                    + main_menu_text
+                )
+                read_menu_activ = False 
+                read_ins_activ = False
         
 
     bot.polling()
